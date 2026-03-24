@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Road Trip | Recharge</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body { background: linear-gradient(rgba(10, 20, 30, 0.7), rgba(10, 20, 30, 0.7)), url('images/drone-drive-bg.jpg') center/cover no-repeat fixed; color: white !important; }
+        .glass-panel { background: rgba(30, 40, 50, 0.6); border-color: rgba(255,255,255,0.2); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        h1, h2, h3, h4 { color: #fff !important; text-shadow: 0 4px 15px rgba(0,0,0,0.8); }
+        p, li, span { color: #ddd !important; text-shadow: 0 2px 5px rgba(0,0,0,0.6); }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="index.html">
+                <img src="images/logo.png" alt="Recharge Logo" class="nav-logo">
+            </a>
+        </div>
+        <div class="nav-right">
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main style="padding: 4rem 1rem; text-align: center;">
+        <section class="content-section">
+            <div class="glass-panel container">
+                <h1>THE ROAD TRIP</h1>
+                <p>Enter your starting town to get GPS directions directly to the conference at Camp Drew.</p>
+                
+                <input type="text" id="drive-town" placeholder="Your starting town (e.g. Byron Bay)...">
+                <button class="btn btn-primary" onclick="openDriveMaps()">OPEN GOOGLE MAPS</button>
+                
+                <br>
+                <a href="travel.html" class="back-btn">Back to travel options</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 The Recharge Conference</p>
+    </footer>
+
+    <script>
+        function openDriveMaps() {
+            const town = document.getElementById('drive-town').value.trim();
+            if (!town) return alert("Please enter a town name.");
+            
+            // Destination is set to Camp Drew, Lennox Head NSW
+            const destination = "Camp+Drew+Lennox+Head+NSW";
+            const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${destination}&origin=${encodeURIComponent(town)}&travelmode=driving`;
+            
+            window.open(mapsUrl, '_blank');
+        }
+    </script>
+</body>
+</html>

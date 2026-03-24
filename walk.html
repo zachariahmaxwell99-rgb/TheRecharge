@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Pilgrimage | Recharge</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Open+Sans:wght@400;600&family=Courier+New:wght@700&display=swap" rel="stylesheet">
+    <style>
+        .search-container { position: relative; max-width: 420px; margin: 0 auto; }
+        .autocomplete-items {
+            position: absolute; border: 1px solid rgba(0,0,0,0.1); border-top: none;
+            z-index: 99; top: calc(100% - 30px); left: 15px; right: 15px;
+            background: rgba(255,255,255,0.95); border-radius: 0 0 16px 16px;
+            overflow: hidden; text-align: left; box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            backdrop-filter: blur(10px); display: none;
+        }
+        .autocomplete-items div {
+            padding: 12px 20px; cursor: pointer; border-bottom: 1px solid rgba(0,0,0,0.05); 
+            color: #333; font-size: 0.95rem; font-family: var(--font-body);
+        }
+        .autocomplete-items div:hover { background-color: rgba(0,0,0,0.05); }
+
+        /* Custom Receipt Styles */
+        .receipt-card {
+            background: white; border: 2px solid #333; padding: 30px; 
+            font-family: 'Courier New', monospace; text-align: left; 
+            box-shadow: 8px 8px 0 rgba(0,0,0,0.1); margin: 20px auto;
+            max-width: 600px; color: #333;
+        }
+        .receipt-card h3 { margin-top: 0; color: var(--text-primary); font-family: var(--font-heading); }
+        .receipt-card h2 { color: #0077b6; margin: 15px 0; font-family: var(--font-heading); }
+        .receipt-divider { border-bottom: 2px dashed #ccc; margin: 15px 0; }
+        .departure-box { background: #f0f0f0; padding: 15px; border-left: 5px solid var(--text-primary); margin-top: 20px; }
+        
+        body { background: linear-gradient(rgba(10, 20, 30, 0.8), rgba(10, 20, 30, 0.8)), url('images/slide2-campfire.jpg') center/cover no-repeat fixed; color: white !important; }
+        .glass-panel { background: rgba(30, 40, 50, 0.6); border-color: rgba(255,255,255,0.2); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        h1, h2, h3, h4 { color: #fff !important; text-shadow: 0 4px 15px rgba(0,0,0,0.8); }
+        #input-view p, #quest-stage p { color: #ddd !important; text-shadow: 0 2px 5px rgba(0,0,0,0.6); }
+        .autocomplete-items div { color: #333 !important; text-shadow: none; }
+        .receipt-card h2, .receipt-card h3, .receipt-card p, .receipt-card div { color: #333 !important; text-shadow: none; }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="index.html">
+                <img src="images/logo.png" alt="Recharge Logo" class="nav-logo">
+            </a>
+        </div>
+        <div class="nav-right">
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main style="padding: 4rem 1rem; text-align: center;">
+        <section class="content-section">
+            <div class="glass-panel container">
+                
+                <!-- INPUT VIEW -->
+                <div id="input-view">
+                    <h1>CALCULATE THE JOURNEY</h1>
+                    <p>Map out exactly how long it takes to trek to the conference.</p>
+                    <div class="search-container">
+                        <input type="text" id="user-town" placeholder="Enter your starting town..." autocomplete="off">
+                        <div id="autocomplete-list" class="autocomplete-items"></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="startQuest()">START THE QUEST</button>
+                    <br><br>
+                    <a href="travel.html" class="back-btn">Back to travel options</a>
+                </div>
+
+                <!-- QUEST ANIMATION STAGE -->
+                <div id="quest-stage" style="display:none; position:relative; max-width: 800px; margin: 0 auto; overflow:hidden; border-radius:12px; height: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 30px;">
+                    <iframe id="animation-frame" src="Walking animation.html" style="width: 800px; height: 450px; border: none; display: block; margin: 0 auto; pointer-events: none;"></iframe>
+                </div>
+
+                <!-- RECEIPT / VOUCHER VIEW -->
+                <div id="voucher-view" style="display:none;">
+                    <div id="receipt-display"></div>
+                    <div style="margin-top: 25px; display: flex; gap: 15px; justify-content: center; align-items: center;">
+                        <button class="btn btn-primary" onclick="resetQuest()" style="margin: 0;">START OVER</button>
+                        <a href="travel.html" class="back-btn" style="margin: 0;">Back to travel options</a>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 The Recharge Conference</p>
+    </footer>
+
+    <script>
+        const pilgrimageData = {
+          "ballina": 5, "byron": 4, "lismore": 9, "alstonville": 6, "mullumbimby": 7, "casino": 14, "kyogle": 18, "evans head": 12, "yamba": 25, "grafton": 28,
+          "coffs": 45, "port macquarie": 78, "taree": 95, "newcastle": 110, "maitland": 115, "singleton": 125, "gosford": 135,
+          "sydney": 158, "parramatta": 162, "penrith": 170, "campbelltown": 175, "wollongong": 185, "nowra": 210, "canberra": 220,
+          "tamworth": 92, "armidale": 65, "tenterfield": 48, "inverell": 75, "gunnedah": 105, "dubbo": 165, "mudgee": 155, "orange": 175, "bathurst": 180, "wagga": 260, "albury": 290, "broken hill": 380,
+          "tweed": 12, "gold coast": 14, "brisbane": 36, "ipswich": 38, "sunshine coast": 52, "noosa": 58, "gympie": 68, "bundaberg": 98, "rockhampton": 140, "townsville": 240, "cairns": 290,
+          "melbourne": 345, "adelaide": 410, "perth": 850, "darwin": 680, "hobart": 420
+        };
+
+        const towns = Object.keys(pilgrimageData);
+        const searchInput = document.getElementById("user-town");
+        const autocompleteList = document.getElementById("autocomplete-list");
+
+        // Autocomplete Logic
+        searchInput.addEventListener("input", function() {
+            const val = this.value.toLowerCase().trim();
+            autocompleteList.innerHTML = "";
+            
+            if (!val) { 
+                autocompleteList.style.display = "none"; 
+                return; 
+            }
+            
+            const filtered = towns.filter(t => t.toLowerCase().includes(val));
+            
+            if (filtered.length > 0) {
+                autocompleteList.style.display = "block";
+                filtered.slice(0, 8).forEach(town => { // Show top 8 matching towns min/max
+                    // Capitalize first letter for beautifully displaying the town
+                    const displayTown = town.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                    const div = document.createElement("div");
+                    div.innerHTML = `<strong>${displayTown}</strong>`;
+                    div.addEventListener("click", () => {
+                        searchInput.value = displayTown;
+                        autocompleteList.style.display = "none";
+                    });
+                    autocompleteList.appendChild(div);
+                });
+            } else { 
+                autocompleteList.style.display = "none"; 
+            }
+        });
+
+        // Hide autocomplete if clicked outside
+        document.addEventListener("click", function (e) {
+            if (e.target !== searchInput) {
+                autocompleteList.style.display = "none";
+            }
+        });
+
+        function formatDisplayTown(townInput) {
+            return townInput.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        }
+
+        function startQuest() {
+            const townInput = document.getElementById('user-town').value.toLowerCase().trim();
+            if (!townInput) return alert("Please enter a starting town.");
+
+            let hours = 0;
+            let foundTown = formatDisplayTown(townInput);
+
+            // Exact or partial match logic mapping exactly to legacy
+            for (let key in pilgrimageData) {
+                if (townInput.includes(key) || key.includes(townInput)) {
+                    hours = pilgrimageData[key];
+                    foundTown = formatDisplayTown(key);
+                    break; 
+                }
+            }
+
+            // Fallback for unmapped locations prompting manual entry
+            if (hours === 0) {
+                const km = prompt("We don't have that town mapped yet! Roughly how many km is it to Lennox Head?");
+                if (km && !isNaN(km) && km > 0) {
+                    hours = Math.round(km / 5); // Rough 5km per hour walking avg
+                } else return;
+            }
+
+            const targetCredit = hours * 10;
+            let currentCredit = 0;
+
+            // Transition UI views
+            document.getElementById('input-view').style.display = 'none';
+            document.getElementById('quest-stage').style.display = 'block';
+
+            // Store active tracking calculations centrally so the asynchronous event listener can fetch it natively later
+            window.currentJourney = { town: foundTown, hours: hours, credit: targetCredit };
+
+            // Use postMessage to universally bypass strict local file:// cross-origin DOM constraints
+            const iframeWin = document.getElementById('animation-frame').contentWindow;
+            if (iframeWin) {
+                iframeWin.postMessage("START_QUEST", "*");
+            }
+            
+            // Replaced brittle setTimeout hack with mathematically precise event listener hooks bound to the actual typing completion payload!
+        }
+
+        // Parent window listens carefully for the absolute final character typing out
+        window.addEventListener('message', function(e) {
+            if (e.data === "VOUCHER_READY" && window.currentJourney) {
+                const iframeWin = document.getElementById('animation-frame').contentWindow;
+                if(iframeWin) iframeWin.postMessage("STOP_QUEST", "*");
+                generateVoucher(window.currentJourney.town, window.currentJourney.hours, window.currentJourney.credit);
+            }
+        });
+
+        function generateVoucher(town, hours, credit) {
+            // Unfurled sibling block element dynamically slides sequentially beneath the quest stage rather than overlapping it destructively
+            document.getElementById('voucher-view').style.display = 'block';
+
+            const ticketPrice = 300;
+            const isFree = credit >= ticketPrice;
+
+            // Precise calculation of start time based exactly on hours
+            const startDate = new Date("2026-07-31T16:00:00");
+            startDate.setHours(startDate.getHours() - hours);
+            const dateStr = startDate.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' });
+            const timeStr = startDate.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
+
+            document.getElementById('receipt-display').innerHTML = `
+                <div class="receipt-card">
+                    <h3>WOW! THAT'S A CONTEMPLATIVE WALK.</h3>
+                    <p>At the Recharge Conference, we believe hard work should be rewarded. For every hour you walk, you save <strong>$10.00</strong> off your ticket price.</p>
+                    <div class="receipt-divider"></div>
+                    <p><strong>ORIGIN:</strong> ${town}</p>
+                    <p><strong>TIME:</strong> ${hours} HRS</p>
+                    <div class="receipt-divider"></div>
+                    <h2>CONGRATULATIONS!</h2>
+                    <p>${isFree ? "If you complete your journey, we'll give you a <strong>FREE TICKET</strong>." : "If you complete your journey, you'll save <strong>$" + credit.toFixed(2) + "</strong> off the ticket price."}</p>
+                    <p style="font-style:italic; font-size:0.85rem; color:#666; margin-top:20px;">"But remember, if it's not on Strava, it never happened."</p>
+                    
+                    <div class="departure-box">
+                        <p style="margin:0; font-size:0.95rem; font-family: var(--font-body); color: var(--text-primary);">
+                            <strong>MUST DEPART BY:</strong><br>
+                            ${dateStr} at ${timeStr}
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function resetQuest() {
+            document.getElementById('voucher-view').style.display = 'none';
+            document.getElementById('quest-stage').style.display = 'none';
+            document.getElementById('input-view').style.display = 'block';
+            document.getElementById('user-town').value = '';
+            
+            // Trigger remote reset via postMessage to bypass sandbox blocks
+            const iframeWin = document.getElementById('animation-frame').contentWindow;
+            if (iframeWin) {
+                iframeWin.postMessage("RESET_QUEST", "*");
+            }
+        }
+    </script>
+</body>
+</html>

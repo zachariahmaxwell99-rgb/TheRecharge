@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Recharge Conference | Home</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Open+Sans:wght@400;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Navigation Bar (Hidden on index via CSS) -->
+    <nav class="navbar index-page-nav">
+        <div class="nav-left">
+            <a href="index.html">
+                <img src="images/logo.png" alt="Recharge Logo" class="nav-logo">
+            </a>
+        </div>
+        <div class="nav-right">
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Scroll Spacer: This invisible div gives the scroll distance for the transition. -->
+        <div id="scroll-spacer" style="height: 800px; width: 100%;"></div>
+
+        <!-- Sticky Hero: Now position:fixed at the top permanently -->
+        <section class="hero" id="home-hero" style="background: none; position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;">
+            
+            <!-- JS-Driven Crossfade Slideshow: two layers swap back and forth -->
+            <div id="slide-a" style="position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-position:center;background-attachment:fixed;z-index:-1;transition:opacity 1.5s ease;"></div>
+            <div id="slide-b" style="position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-position:center;background-attachment:fixed;z-index:-2;transition:opacity 1.5s ease;"></div>
+
+            <div class="hero-content">
+                <!-- Navigation links integrated into hero -->
+                <div class="hero-nav hero-hide-on-scroll">
+                    <a href="about.html">About</a>
+                    <a href="contact.html">Contact</a>
+                </div>
+
+                <img src="images/logo.png" alt="Recharge Logo" class="hero-logo">
+
+                <p class="blurb hero-hide-on-scroll">A weekend of equipping and fellowship.</p>
+
+                <h2 class="event-date hero-hide-on-scroll">July 31st – August 2nd, 2026</h2>
+                <div class="location-details hero-hide-on-scroll">
+                    <p class="event-location">Camp Drew, Lennox Head NSW</p>
+                </div>
+
+                <!-- Countdown Timer Container -->
+                <section id="countdown" class="timer-grid" aria-label="Countdown Timer">
+                    <div class="time-box">
+                        <span id="days">00</span>
+                        <p>Days</p>
+                    </div>
+                    <div class="time-box">
+                        <span id="hours">00</span>
+                        <p>Hours</p>
+                    </div>
+                    <div class="time-box">
+                        <span id="minutes">00</span>
+                        <p>Minutes</p>
+                    </div>
+                    <div class="time-box">
+                        <span id="seconds">00</span>
+                        <p>Seconds</p>
+                    </div>
+                </section>
+
+                <!-- Full Hero Buttons (Centered) -->
+                <div class="hero-hide-on-scroll" style="margin-top: 40px; display: flex; gap: 20px; justify-content: center;">
+                     <a href="https://humanitix.com" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Book Tickets</a>
+                     <a href="travel.html" class="btn btn-primary">Travel Help</a>
+                </div>
+
+                <!-- Compact Action Buttons & Scrolled Nav (Visible only in header) -->
+                <div class="btn-group compact-fade-in" style="opacity: 0; pointer-events: none;">
+                    <div class="compact-nav-links">
+                        <a href="about.html">About</a>
+                        <a href="contact.html">Contact</a>
+                    </div>
+                    <a href="https://humanitix.com" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Book Tickets</a>
+                    <a href="travel.html" class="btn btn-primary">Travel Help</a>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Gallery starts after the spacer -->
+
+        <!-- Dynamic Photo Gallery -->
+        <section class="content-section" style="padding: 60px 20px; max-width: 1200px; margin: 0 auto; text-align: center;">
+            <h2 style="font-size: 2.2rem;">GLIMPSES OF RECHARGE</h2>
+            <div class="accent-line"></div>
+            
+            <div class="masonry-grid">
+                <img src="images/masonry-iphone-2.jpg" alt="Community Interaction" class="masonry-img" loading="lazy">
+                <img src="images/masonry-iphone-5.jpg" alt="Conference Highlight" class="masonry-img" loading="lazy">
+                <img src="images/masonry-iphone-3.jpg" alt="Main Event" class="masonry-img" loading="lazy">
+                <img src="images/masonry-iphone-4.jpg" alt="Attendee Experience" class="masonry-img" loading="lazy">
+                <img src="images/masonry-iphone-1.jpg" alt="Recharge Atmosphere" class="masonry-img" loading="lazy">
+                <img src="images/event-outdoor-gathering.jpg" alt="Event Presentation" class="masonry-img" loading="lazy">
+                <img src="images/slide4-speaker-stage.jpg" alt="Crowd Reaction" class="masonry-img" loading="lazy">
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 The Recharge Conference</p>
+    </footer>
+    <!-- Sticky Hero Collapse Script -->
+    <script>
+        (function() {
+            const hero = document.getElementById('home-hero');
+            const SCROLL_THRESHOLD = 100;
+
+            function updateHero() {
+                if (window.scrollY > SCROLL_THRESHOLD) {
+                    hero.classList.add('hero-scrolled');
+                } else {
+                    hero.classList.remove('hero-scrolled');
+                }
+            }
+
+            window.addEventListener('scroll', updateHero, { passive: true });
+            // Initial check
+            updateHero();
+        })();
+    </script>
+
+    <!-- Hero Slideshow Script -->
+    <script>
+        (function() {
+            const slides = [
+                "images/drone-backup-pano-1.jpg",
+                "images/event-crowd-1.jpg",
+                "images/speaker-john.jpg"
+            ];
+            const overlay = "linear-gradient(rgba(10,20,30,0.65), rgba(10,20,30,0.65)), ";
+            let current = 0;
+            let useA = true;
+
+            const a = document.getElementById('slide-a');
+            const b = document.getElementById('slide-b');
+
+            // Show first slide immediately
+            a.style.backgroundImage = overlay + "url('" + slides[0] + "')";
+            a.style.opacity = "1";
+            b.style.opacity = "0";
+
+            setInterval(function() {
+                current = (current + 1) % slides.length;
+                const next = overlay + "url('" + slides[current] + "')";
+
+                if (useA) {
+                    // b is behind (-z-index 2), load next into b, then fade a out
+                    b.style.backgroundImage = next;
+                    a.style.opacity = "0";
+                    b.style.zIndex = "-1";
+                    a.style.zIndex = "-2";
+                    b.style.opacity = "1";
+                } else {
+                    // a is behind, load next into a, then fade b out
+                    a.style.backgroundImage = next;
+                    b.style.opacity = "0";
+                    a.style.zIndex = "-1";
+                    b.style.zIndex = "-2";
+                    a.style.opacity = "1";
+                }
+                useA = !useA;
+            }, 6000);
+        })();
+    </script>
+
+    <!-- Countdown Script -->
+    <script>
+        const countDownDate = new Date("July 31, 2026 17:00:00").getTime();
+        let timer;
+
+        function updateTimer() {
+            const now = new Date().getTime();
+            const distance = countDownDate - now;
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            const daysEl = document.getElementById("days");
+            if (daysEl) daysEl.innerText = days.toString().padStart(2, '0');
+
+            const hoursEl = document.getElementById("hours");
+            if (hoursEl) hoursEl.innerText = hours.toString().padStart(2, '0');
+
+            const minutesEl = document.getElementById("minutes");
+            if (minutesEl) minutesEl.innerText = minutes.toString().padStart(2, '0');
+
+            const secondsEl = document.getElementById("seconds");
+            if (secondsEl) secondsEl.innerText = seconds.toString().padStart(2, '0');
+
+            if (distance < 0) {
+                if(timer) clearInterval(timer);
+                const countdownEl = document.getElementById("countdown");
+                if (countdownEl) countdownEl.innerHTML = "<p>THE EVENT HAS BEGUN</p>";
+            }
+        }
+
+        // Run immediately to eliminate the 1-second '00' load-in jolt
+        updateTimer();
+        // Resume periodic tracking
+        timer = setInterval(updateTimer, 1000);
+    </script>
+
+</body>
+
+</html>

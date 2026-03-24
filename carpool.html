@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carpool | The Recharge Conference</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Open+Sans:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        .carpool-options {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .carpool-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 12px;
+            flex: 1;
+            min-width: 250px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .carpool-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+        }
+
+        .carpool-card h3 {
+            font-family: var(--font-heading);
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+
+        .carpool-card p {
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-top: none;
+            z-index: 99;
+            top: calc(100% - 10px);
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 0 0 12px 12px;
+            overflow: hidden;
+            text-align: left;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        .autocomplete-items div {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            color: #333;
+            font-size: 0.95rem;
+            font-family: var(--font-body);
+        }
+
+        .autocomplete-items div:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            text-align: left;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: var(--font-body);
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(74, 144, 226, 0.2);
+        }
+
+        .loader-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 30px 0;
+        }
+
+        .loader-progress {
+            width: 50%;
+            height: 100%;
+            background: var(--primary-color);
+            animation: slide 2s infinite ease-in-out;
+        }
+
+        @keyframes slide {
+            0% {
+                transform: translateX(-100%);
+                width: 30%;
+            }
+
+            50% {
+                width: 60%;
+            }
+
+            100% {
+                transform: translateX(200%);
+                width: 30%;
+            }
+        }
+
+        .match-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .match-avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .match-info h4 {
+            margin: 0 0 5px 0;
+            font-family: var(--font-heading);
+            color: var(--text-primary);
+        }
+
+        .match-info p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        /* TIMELINE VISUALIZER */
+        .route-visualizer { 
+            background: linear-gradient(rgba(245, 247, 250, 0.9), rgba(245, 247, 250, 0.9)), url('australia_map.png') center/cover no-repeat;
+            border-radius: 12px; padding: 20px; text-align: left; margin: 20px 0; border: 1px solid rgba(0,0,0,0.05); 
+            box-shadow: inset 0 0 20px rgba(74, 144, 226, 0.05);
+        }
+        .route-visualizer h3 { margin-top: 0; font-family: var(--font-heading); color: var(--primary-color); text-align: center; }
+        .timeline { position: relative; padding: 20px 0; margin-left: 20px; }
+        .timeline-item { position: relative; padding-left: 30px; margin-bottom: 25px; }
+        .timeline-item:last-child { margin-bottom: 0; }
+        .timeline-line { position: absolute; left: 7px; top: 20px; bottom: -25px; width: 2px; background: rgba(0,0,0,0.1); }
+        .timeline-item:last-child .timeline-line { display: none; }
+        
+        .timeline-dot { position: absolute; left: 0; top: 4px; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 0 2px rgba(0,0,0,0.1); background: #ccc; z-index: 2; }
+        .timeline-dot.dot-driver { background: #3498db; box-shadow: 0 0 0 2px #3498db; }
+        .timeline-dot.dot-passenger { background: #2ecc71; box-shadow: 0 0 0 2px #2ecc71; transform: scale(1.3); }
+        .timeline-dot.dot-dest { background: #e74c3c; box-shadow: 0 0 0 2px #e74c3c; border-radius: 4px; }
+        
+        .timeline-content .town-name { font-weight: bold; font-family: var(--font-heading); color: var(--text-primary); font-size: 1.1rem; }
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; color: white; margin-top: 5px; }
+        .badge-driver { background: #3498db; }
+        .badge-passenger { background: #2ecc71; }
+        .badge-dest { background: #e74c3c; }
+        .passenger-pickup { background: rgba(46, 204, 113, 0.1); border-left: 3px solid #2ecc71; padding: 5px 10px; margin-top: 5px; font-size: 0.85rem; border-radius: 0 4px 4px 0; }
+        
+        body { background: linear-gradient(rgba(10, 20, 30, 0.8), rgba(10, 20, 30, 0.8)), url('images/drone-carpool-bg.jpg') center/cover no-repeat fixed; }
+        .glass-panel { background: rgba(30, 40, 50, 0.6) !important; border-color: rgba(255,255,255,0.2); box-shadow: 0 20px 50px rgba(0,0,0,0.5) !important; filter: none !important; }
+        h1 { color: #fff !important; text-shadow: 0 4px 15px rgba(0,0,0,0.8); }
+        #carpool-view p, #driver-view p, #passenger-view p { color: #ddd !important; text-shadow: 0 2px 5px rgba(0,0,0,0.6); }
+        .form-label { color: #ccc !important; text-shadow: 0 2px 5px rgba(0,0,0,0.6); }
+        .carpool-card { background: rgba(0,0,0,0.5) !important; border: 1px solid rgba(255,255,255,0.1); }
+        .carpool-card:hover { background: rgba(0,0,0,0.8) !important; }
+        .route-visualizer { background: linear-gradient(rgba(245, 247, 250, 0.95), rgba(245, 247, 250, 0.95)), url('australia_map.png') center/cover no-repeat !important; border: none !important; }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="index.html">
+                <img src="images/logo.png" alt="Recharge Logo" class="nav-logo">
+            </a>
+        </div>
+        <div class="nav-right">
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main style="padding: 4rem 1rem; text-align: center;">
+        <section class="content-section">
+            <div class="glass-panel container" style="max-width: 800px;">
+
+                <!-- INITIAL SELECTION -->
+                <div id="carpool-view">
+                    <h1>COMMUNITY CARPOOL</h1>
+                    <p>Share the journey. Find a ride or offer your empty seats to fellow attendees.</p>
+
+                    <div class="carpool-options">
+                        <div class="carpool-card" onclick="showPassengerView()">
+                            <h3>I NEED A RIDE</h3>
+                            <p>Looking for a lift to the conference? Connect with drivers leaving from your area.</p>
+                        </div>
+                        <div class="carpool-card" onclick="showDriverView()">
+                            <h3>I'M DRIVING</h3>
+                            <p>Got spare seats? Help out a fellow attendee and share the travel costs.</p>
+                        </div>
+                    </div>
+                    <a href="travel.html" class="back-btn">Back to travel options</a>
+                </div>
+
+                <!-- DRIVER VIEW -->
+                <div id="driver-view" style="display:none;">
+                    <h1>OFFER A RIDE</h1>
+                            PASSENGERS</button>
+                    </div>
+                    <br><br>
+                    <a href="javascript:void(0)" onclick="resetSelection()" class="back-btn">Back to carpool options</a>
+                </div>
+
+                <!-- PASSENGER VIEW -->
+                <div id="passenger-view" style="display:none;">
+                    <h1>REQUEST A SEAT</h1>
+                    <p>Where do you need to be picked up?</p>
+                    <br>
+                    <div style="max-width: 420px; margin: 0 auto; text-align: left;">
+                        <label class="form-label">YOUR NAME</label>
+                        <input type="text" id="passenger-name" class="form-input" placeholder="What's your name?"
+                            autocomplete="off" style="margin-bottom: 25px;">
+
+                        <label class="form-label">PICKUP LOCATION</label>
+                        <div class="search-container">
+                            <input type="text" id="passenger-origin" class="form-input"
+                                placeholder="Enter your local town..." autocomplete="off">
+                            <div id="passenger-autocomplete" class="autocomplete-items"></div>
+                        </div>
+                        <div style="margin-bottom: 30px;"></div>
+
+                        <button class="btn btn-primary" style="width:100%" onclick="scanForDrivers()">SEARCH FOR
+                            DRIVERS</button>
+                    </div>
+                    <br><br>
+                    <a href="javascript:void(0)" onclick="resetSelection()" class="back-btn">Back to carpool options</a>
+                </div>
+
+                <!-- LOADING VIEW -->
+                <div id="loading-view" style="display:none; padding: 40px 0;">
+                    <h2 id="loading-text" style="color: var(--primary-color);">SCANNING ROUTES...</h2>
+                    <div class="loader-bar">
+                        <div class="loader-progress"></div>
+                    </div>
+                    <p style="font-style: italic; color: #888;">Connecting to the community grid...</p>
+                </div>
+
+                <!-- MATCH VIEW -->
+                <div id="match-view" style="display:none;">
+                    <h2 id="match-title" style="color: var(--primary-color);">MATCHES FOUND</h2>
+                    <p id="match-subtitle">We found attendees along your route.</p>
+                    <div id="match-list" style="margin: 25px 0;"></div>
+                    <button class="btn btn-primary" id="confirm-match-btn" style="width:100%"></button>
+                    <br><br>
+                    <a href="javascript:void(0)" onclick="resetSelection()" class="back-btn">Cancel</a>
+                </div>
+
+                <!-- RECEIPT VIEW -->
+                <div id="receipt-view" style="display:none;">
+                    <div id="receipt-display"></div>
+                    <br>
+                    <div
+                        style="margin-top: 25px; display: flex; gap: 15px; justify-content: center; align-items: center;">
+                        <button class="btn btn-primary" onclick="resetSelection()" style="margin: 0;">NEW
+                            SEARCH</button>
+                        <a href="travel.html" class="back-btn" style="margin: 0;">Back to travel options</a>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 The Recharge Conference</p>
+    </footer>
+
+    <script>
+        const townsData = {
+            "ballina": 5, "byron": 4, "lismore": 9, "alstonville": 6, "mullumbimby": 7, "casino": 14, "kyogle": 18, "evans head": 12, "yamba": 25, "grafton": 28,
+            "coffs": 45, "port macquarie": 78, "taree": 95, "newcastle": 110, "maitland": 115, "singleton": 125, "gosford": 135,
+            "sydney": 158, "parramatta": 162, "penrith": 170, "campbelltown": 175, "wollongong": 185, "nowra": 210, "canberra": 220,
+            "tamworth": 92, "armidale": 65, "tenterfield": 48, "inverell": 75, "gunnedah": 105, "dubbo": 165, "mudgee": 155, "orange": 175, "bathurst": 180, "wagga": 260, "albury": 290, "broken hill": 380,
+            "tweed": 12, "gold coast": 14, "brisbane": 36, "ipswich": 38, "sunshine coast": 52, "noosa": 58, "gympie": 68, "bundaberg": 98, "rockhampton": 140, "townsville": 240, "cairns": 290,
+            "melbourne": 345, "adelaide": 410, "perth": 850, "darwin": 680, "hobart": 420
+        };
+        const towns = Object.keys(townsData);
+
+        const routes = {
+            "sydney": ["sydney", "gosford", "newcastle", "taree", "port macquarie", "coffs", "grafton", "yamba", "ballina", "byron"],
+            "wollongong": ["wollongong", "campbelltown", "sydney", "gosford", "newcastle", "taree", "port macquarie", "coffs", "grafton", "yamba", "ballina", "byron"],
+            "canberra": ["canberra", "nowra", "wollongong", "campbelltown", "sydney", "gosford", "newcastle", "taree", "port macquarie", "coffs", "grafton", "yamba", "ballina", "byron"],
+            "melbourne": ["melbourne", "albury", "wagga", "canberra", "sydney", "gosford", "newcastle", "taree", "port macquarie", "coffs", "grafton", "yamba", "ballina", "byron"],
+            "adelaide": ["adelaide", "broken hill", "dubbo", "mudgee", "newcastle", "taree", "port macquarie", "coffs", "grafton", "yamba", "ballina", "byron"],
+            "hobart": ["hobart", "melbourne", "albury", "wagga", "canberra", "sydney", "gosford", "newcastle", "taree", "port macquarie", "coffs", "grafton", "yamba", "ballina", "byron"],
+            "perth": ["perth", "adelaide", "broken hill", "dubbo", "mudgee", "newcastle", "taree", "port macquarie", "coffs", "grafton", "yamba", "ballina", "byron"],
+            "tamworth": ["tamworth", "armidale", "grafton", "yamba", "ballina", "byron"],
+            "inverell": ["inverell", "grafton", "yamba", "ballina", "byron"],
+            "tenterfield": ["tenterfield", "casino", "lismore", "alstonville", "byron"],
+            "gunnedah": ["gunnedah", "tamworth", "armidale", "grafton", "yamba", "ballina", "byron"],
+            "dubbo": ["dubbo", "mudgee", "singleton", "maitland", "newcastle", "taree", "port macquarie", "coffs", "grafton", "yamba", "ballina", "byron"],
+            "orange": ["orange", "bathurst", "penrith", "parramatta", "sydney", "gosford", "newcastle", "taree", "port macquarie", "coffs", "grafton", "yamba", "ballina", "byron"],
+            "cairns": ["cairns", "townsville", "rockhampton", "bundaberg", "gympie", "noosa", "sunshine coast", "brisbane", "gold coast", "tweed", "byron"],
+            "brisbane": ["brisbane", "gold coast", "tweed", "byron"],
+            "ipswich": ["ipswich", "brisbane", "gold coast", "tweed", "byron"],
+            "darwin": ["darwin", "townsville", "rockhampton", "bundaberg", "gympie", "noosa", "sunshine coast", "brisbane", "gold coast", "tweed", "byron"],
+            "kyogle": ["kyogle", "casino", "lismore", "alstonville", "byron"],
+            "evans head": ["evans head", "ballina", "byron"],
+            "mullumbimby": ["mullumbimby", "byron"],
+            "lismore": ["lismore", "alstonville", "byron"]
+        };
+
+        function getRoute(originTown) {
+            originTown = originTown.toLowerCase().trim();
+            for (let start in routes) {
+                let path = routes[start];
+                let index = path.indexOf(originTown);
+                if (index !== -1) {
+                    return path.slice(index);
+                }
+            }
+            return [originTown, "byron"]; // Secure fallback guarantee
+        }
+
+        function formatDisplayTown(t) {
+            return t.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        }
+
+        function setupAutocomplete(inputId, listId) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+
+            input.addEventListener("input", function () {
+                const val = this.value.toLowerCase().trim();
+                list.innerHTML = "";
+                if (!val) { list.style.display = "none"; return; }
+
+                const filtered = towns.filter(t => t.toLowerCase().includes(val));
+                if (filtered.length > 0) {
+                    list.style.display = "block";
+                    filtered.slice(0, 6).forEach(town => {
+                        const displayTown = formatDisplayTown(town);
+                        const div = document.createElement("div");
+                        div.innerHTML = `<strong>${displayTown}</strong>`;
+                        div.addEventListener("click", () => {
+                            input.value = displayTown;
+                            list.style.display = "none";
+                        });
+                        list.appendChild(div);
+                    });
+                } else { list.style.display = "none"; }
+            });
+
+            document.addEventListener("click", e => {
+                if (e.target !== input) list.style.display = "none";
+            });
+        }
+
+        setupAutocomplete('driver-origin', 'driver-autocomplete');
+        setupAutocomplete('passenger-origin', 'passenger-autocomplete');
+
+        function showDriverView() {
+            document.getElementById('carpool-view').style.display = 'none';
+            document.getElementById('driver-view').style.display = 'block';
+        }
+        function showPassengerView() {
+            document.getElementById('carpool-view').style.display = 'none';
+            document.getElementById('passenger-view').style.display = 'block';
+        }
+        function resetSelection() {
+            document.getElementById('driver-view').style.display = 'none';
+            document.getElementById('passenger-view').style.display = 'none';
+            document.getElementById('loading-view').style.display = 'none';
+            document.getElementById('match-view').style.display = 'none';
+            document.getElementById('receipt-view').style.display = 'none';
+
+            document.getElementById('carpool-view').style.display = 'block';
+            document.getElementById('driver-name').value = '';
+            document.getElementById('passenger-name').value = '';
+            document.getElementById('driver-origin').value = '';
+            document.getElementById('passenger-origin').value = '';
+            document.getElementById('driver-seats').value = 1;
+        }
+
+        let currentRole = '';
+        let driverSeats = 1;
+
+        // Mock generators strictly removed! Live data is now sourced entirely directly from SQLite Backend!
+
+        function scanForPassengers() {
+            const name = document.getElementById('driver-name').value.trim();
+            const origin = document.getElementById('driver-origin').value;
+            driverSeats = parseInt(document.getElementById('driver-seats').value) || 1;
+
+            if (!name || !origin) return alert("Please enter your name and starting town.");
+
+            currentRole = 'driver';
+            document.getElementById('driver-view').style.display = 'none';
+            document.getElementById('loading-text').innerText = "REGISTERING ALGORITHM...";
+            document.getElementById('loading-view').style.display = 'block';
+            
+            const userRoute = getRoute(origin);
+
+            // Post to Live Backend natively
+            fetch('http://127.0.0.1:5000/api/ride', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: 'driver', name: name, origin: origin.toLowerCase().trim(), route: userRoute, seats: driverSeats })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        return fetch(`http://127.0.0.1:5000/api/matches?role=driver&origin=${origin.toLowerCase().trim()}&route=${encodeURIComponent(JSON.stringify(userRoute))}`);
+                    } else throw new Error(data.error);
+                })
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('loading-view').style.display = 'none';
+
+                    if (data.matches.length === 0) {
+                        document.getElementById('match-title').innerText = "NO PASSENGERS YET";
+                        document.getElementById('match-subtitle').innerHTML = `There are currently no active passengers requesting a lift along your route.<br><br>We have securely recorded your offer (<strong>${name} from ${origin}</strong>) seamlessly into the live database. We will dynamically match the very next passenger who queries this route!`;
+                        document.getElementById('match-list').innerHTML = '';
+                        document.getElementById('confirm-match-btn').innerText = "CONFIRM MANIFEST";
+                        document.getElementById('confirm-match-btn').onclick = () => generateManifest(false);
+                        document.getElementById('match-view').style.display = 'block';
+                        return;
+                    }
+
+                    document.getElementById('match-title').innerText = "LIVE MATCHES FOUND";
+                    document.getElementById('match-subtitle').innerHTML = `Queried the server and successfully identified <strong>${data.matches.length}</strong> attendee${data.matches.length > 1 ? 's' : ''} natively needing a lift!`;
+
+                    let visualMap = `<div class="route-visualizer"><h3>Your Transit Route</h3><div class="timeline">`;
+                    
+                    userRoute.forEach((town, index) => {
+                        let townMatches = data.matches.filter(m => m.origin.toLowerCase() === town.toLowerCase());
+                        let isOrigin = index === 0;
+                        let isDestination = index === userRoute.length - 1;
+                        
+                        let dotClass = isOrigin ? 'dot-driver' : (isDestination ? 'dot-dest' : (townMatches.length > 0 ? 'dot-passenger' : 'dot-normal'));
+                        
+                        let extraInfo = '';
+                        if (isOrigin) extraInfo = `<span class="badge badge-driver">Your Start</span>`;
+                        else if (isDestination) extraInfo = `<span class="badge badge-dest">Camp Drew</span>`;
+                        
+                        if (townMatches.length > 0) {
+                            townMatches.forEach(m => {
+                                extraInfo += `<div class="passenger-pickup">Pick up <strong>${m.name}</strong> (${m.seats} seat${m.seats>1?'s':''})</div>`;
+                            });
+                        }
+                        
+                        visualMap += `
+                            <div class="timeline-item">
+                                <div class="timeline-line"></div>
+                                <div class="timeline-dot ${dotClass}"></div>
+                                <div class="timeline-content">
+                                    <div class="town-name">${formatDisplayTown(town)}</div>
+                                    ${extraInfo}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    visualMap += `</div></div>`;
+                    
+                    document.getElementById('match-list').innerHTML = visualMap;
+                    document.getElementById('confirm-match-btn').innerText = "OFFER RIDE";
+                    document.getElementById('confirm-match-btn').onclick = () => generateManifest(true);
+
+                    document.getElementById('match-view').style.display = 'block';
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Database Error: Is server.py actively running on Port 5000?");
+                    resetSelection();
+                });
+        }
+
+        function scanForDrivers() {
+            const name = document.getElementById('passenger-name').value.trim();
+            const origin = document.getElementById('passenger-origin').value;
+            if (!name || !origin) return alert("Please enter your name and pickup location.");
+
+            currentRole = 'passenger';
+            document.getElementById('passenger-view').style.display = 'none';
+            document.getElementById('loading-text').innerText = "SEARCHING LIVE DATABASE...";
+            document.getElementById('loading-view').style.display = 'block';
+            
+            const userRoute = getRoute(origin);
+
+            // Post absolute real user natively to Live Backend
+            fetch('http://127.0.0.1:5000/api/ride', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: 'passenger', name: name, origin: origin.toLowerCase().trim(), route: userRoute })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        return fetch(`http://127.0.0.1:5000/api/matches?role=passenger&origin=${origin.toLowerCase().trim()}`);
+                    } else throw new Error(data.error);
+                })
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('loading-view').style.display = 'none';
+
+                    if (data.matches.length === 0) {
+                        document.getElementById('match-title').innerText = "NO DRIVERS FOUND";
+                        document.getElementById('match-subtitle').innerHTML = `There are currently no active drivers tracked natively in our live database.<br><br>We have securely logged your request (<strong>${name} from ${origin}</strong>) into the database! The next compatible driver to search will flawlessly match directly to your ticket!`;
+                        document.getElementById('match-list').innerHTML = '';
+                        document.getElementById('confirm-match-btn').innerText = "CONFIRM SEAT WAITLIST";
+                        document.getElementById('confirm-match-btn').onclick = () => generateManifest(false);
+                        document.getElementById('match-view').style.display = 'block';
+                        return;
+                    }
+
+                    const match = data.matches[0];
+
+                    document.getElementById('match-title').innerText = "SEAT AVAILABLE!";
+                    document.getElementById('match-subtitle').innerHTML = `Successfully found a matching driver inherently inside the local database.`;
+
+                    let driverRoute = [];
+                    try { driverRoute = JSON.parse(match.route); } catch(e) { driverRoute = [match.origin, origin, "byron"]; }
+                    
+                    let visualMap = `<div class="route-visualizer"><h3>${match.name}'s Transit Route</h3><div class="timeline">`;
+                    
+                    driverRoute.forEach((town, index) => {
+                        let isDriverOrigin = index === 0;
+                        let isDestination = index === driverRoute.length - 1;
+                        let isPassengerPickup = town.toLowerCase() === origin.toLowerCase();
+                        
+                        let dotClass = isDriverOrigin ? 'dot-driver' : (isDestination ? 'dot-dest' : (isPassengerPickup ? 'dot-passenger' : 'dot-normal'));
+                        
+                        let extraInfo = '';
+                        if (isDriverOrigin) extraInfo = `<div style="margin-top: 5px;"><span class="badge badge-driver">${match.name} starts here</span><div style="font-size:0.8rem; color:#666; margin-top:2px;">Has ${match.seats} seats available</div></div>`;
+                        else if (isDestination) extraInfo = `<span class="badge badge-dest">Camp Drew</span>`;
+                        
+                        if (isPassengerPickup) extraInfo += `<div class="passenger-pickup"><strong>Your Pickup Point!</strong></div>`;
+                        
+                        visualMap += `
+                            <div class="timeline-item">
+                                <div class="timeline-line"></div>
+                                <div class="timeline-dot ${dotClass}"></div>
+                                <div class="timeline-content">
+                                    <div class="town-name">${formatDisplayTown(town)}</div>
+                                    ${extraInfo}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    visualMap += `</div></div>`;
+                    
+                    document.getElementById('match-list').innerHTML = visualMap;
+
+                    document.getElementById('confirm-match-btn').innerText = "REQUEST SEAT";
+                    document.getElementById('confirm-match-btn').onclick = () => generateManifest(true);
+
+                    document.getElementById('match-view').style.display = 'block';
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Database Error: Is server.py actively running on Port 5000?");
+                    resetSelection();
+                });
+        }
+
+        function generateManifest(hasMatch) {
+            document.getElementById('match-view').style.display = 'none';
+            document.getElementById('receipt-view').style.display = 'block';
+
+            const isDriver = currentRole === 'driver';
+
+            let statusText = hasMatch ? "MATCH CONFIRMED" : "JOINED WAITLIST";
+            let headerText = isDriver ? "DRIVER'S MANIFEST" : "BOARDING PASS";
+            let thanksText = isDriver ? "THANK YOU!" : "PACK YOUR BAGS!";
+            let bodyText = "";
+
+            if (hasMatch) {
+                bodyText = isDriver ? "By occupying those extra seats, you've drastically reduced the carbon footprint of your journey. Thank you for driving our community forward." : "Your seat has been reserved. Wait for your driver to arrive and enjoy the journey to the Recharge Conference!";
+            } else {
+                thanksText = "REQUEST LOGGED!";
+                bodyText = isDriver ? "Your driving offer is safely stored in our live network database. We will notify you seamlessly the exact moment a passenger requests a seat in your vehicle!" : "Your travel request is safely banked! As soon as a compatible driver registers an empty seat mapping securely to your route, we will instantly link your tickets!";
+            }
+
+            document.getElementById('receipt-display').innerHTML = `
+                <div style="background: white; border: 2px solid #333; padding: 30px; font-family: 'Courier New', monospace; text-align: left; box-shadow: 8px 8px 0 rgba(0,0,0,0.1); margin: 20px auto; max-width: 600px; color: #333;">
+                    <h3 style="margin-top: 0; color: var(--text-primary); font-family: var(--font-heading);">${headerText}</h3>
+                    <div style="border-bottom: 2px dashed #ccc; margin: 15px 0;"></div>
+                    <p><strong>STATUS:</strong> ${statusText}</p>
+                    <p><strong>ROLE:</strong> ${isDriver ? "PILOT" : "PASSENGER"}</p>
+                    <div style="border-bottom: 2px dashed #ccc; margin: 15px 0;"></div>
+                    <h2 style="color: #0077b6; margin: 15px 0; font-family: var(--font-heading);">${thanksText}</h2>
+                    <p>${bodyText}</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+
+</html>

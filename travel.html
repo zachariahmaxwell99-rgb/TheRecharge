@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Recharge Conference | Travel Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(rgba(10, 20, 30, 0.7), rgba(10, 20, 30, 0.7)), url('images/drone-travel-bg.jpg') center/cover no-repeat fixed;
+        }
+        .glass-panel { 
+            background: rgba(30, 40, 50, 0.6); 
+            border-color: rgba(255,255,255,0.2); 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .content-section h1 { color: #fff; text-shadow: 0 4px 15px rgba(0,0,0,0.8); }
+        .content-section p { color: #ddd !important; }
+        .choice-card h3 { color: var(--btn-primary-bg) !important; }
+        .choice-card { background: rgba(0,0,0,0.5) !important; border: 1px solid rgba(255,255,255,0.1); }
+        .choice-card:hover { background: rgba(0,0,0,0.8) !important; border-color: var(--btn-primary-bg); transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="index.html">
+                <img src="images/logo.png" alt="Recharge Logo" class="nav-logo">
+            </a>
+        </div>
+        <div class="nav-right">
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main style="padding: 4rem 1rem; text-align: center;">
+        <section class="content-section">
+            <div class="glass-panel container">
+                <h1>HOW ARE YOU ARRIVING?</h1>
+                <p style="color: #666;">Choose your travel mode to see specialized assistance and rewards.</p>
+                
+                <div class="option-grid">
+                    <a href="flight.html" class="choice-card">
+                        <h3>FLYING</h3>
+                        <p>Airport &amp; Flight Info</p>
+                    </a>
+                    
+                    <a href="drive.html" class="choice-card">
+                        <h3>DRIVING</h3>
+                        <p>Road Trip Maps</p>
+                    </a>
+                    
+                    <a href="walk.html" class="choice-card">
+                        <h3>WALKING</h3>
+                        <p>The Pilgrimage Quest</p>
+                    </a>
+                    
+                    <a href="carpool.html" class="choice-card">
+                        <h3>CARPOOL</h3>
+                        <p>Community Matching</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 The Recharge Conference</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

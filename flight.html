@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Info | Recharge</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body { background: linear-gradient(rgba(10, 20, 30, 0.8), rgba(10, 20, 30, 0.8)), url('images/drone-flight-bg.jpg') center/cover no-repeat fixed !important; color: white !important; }
+        .glass-panel { background: rgba(30, 40, 50, 0.6); border-color: rgba(255,255,255,0.2); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        h1, h2, h3, h4 { color: #fff !important; text-shadow: 0 4px 15px rgba(0,0,0,0.8); }
+        p, li, span { color: #f0f0f0 !important; text-shadow: 0 2px 5px rgba(0,0,0,0.6); }
+        #flight-results p { color: #000 !important; text-shadow: none; }
+        .autocomplete-items div { color: #333 !important; text-shadow: none; }
+        .flight-table th { color: #fff !important; text-shadow: 0 2px 5px rgba(0,0,0,0.6); }
+        .flight-table td { color: #fff !important; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        #booking-link { color: white !important; text-shadow: none; }
+        
+        /* Autocomplete dropdown specific styles */
+        .search-container { position: relative; max-width: 420px; margin: 0 auto; }
+        .autocomplete-items {
+            position: absolute; border: 1px solid rgba(0,0,0,0.1); border-top: none;
+            z-index: 99; top: calc(100% - 30px); left: 15px; right: 15px;
+            background: rgba(255,255,255,0.95); border-radius: 0 0 16px 16px;
+            overflow: hidden; text-align: left; box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            backdrop-filter: blur(10px); display: none;
+        }
+        .autocomplete-items div {
+            padding: 12px 20px; cursor: pointer; border-bottom: 1px solid rgba(0,0,0,0.05); 
+            color: #333; font-size: 0.95rem; font-family: var(--font-body);
+        }
+        .autocomplete-items div:hover { background-color: rgba(0,0,0,0.05); }
+        
+        /* Flight Table Styles */
+        .flight-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9rem; }
+        .flight-table th { text-align: left; padding: 10px; border-bottom: 2px solid var(--btn-primary-bg); color: var(--text-primary); font-family: var(--font-heading); }
+        .flight-table td { padding: 12px 10px; border-bottom: 1px solid rgba(0,0,0,0.05); color: #333; }
+        .flight-tag { background: var(--btn-primary-bg); color: var(--btn-primary-text); padding: 5px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; display: inline-block; }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="index.html">
+                <img src="images/logo.png" alt="Recharge Logo" class="nav-logo">
+            </a>
+        </div>
+        <div class="nav-right">
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main style="padding: 4rem 1rem; text-align: center;">
+        <section class="content-section">
+            <div class="glass-panel container">
+                <h1>FLIGHT INFORMATION</h1>
+                <p>Search for your nearest airport to see the best flight paths to the Northern Rivers.</p>
+                
+                <div class="search-container">
+                    <input type="text" id="fly-search" placeholder="Enter your nearest airport (e.g. SYD or Sydney)..." autocomplete="off">
+                    <div id="autocomplete-list" class="autocomplete-items"></div>
+                </div>
+
+                <button class="btn btn-primary" onclick="triggerSearch()">SEARCH FLIGHTS</button>
+
+                <div id="flight-results" style="margin-top: 40px; text-align: left; display: none;">
+                    <div style="background: rgba(255,255,255,0.6); padding: 25px; border-radius: 12px; box-shadow: inset 0 2px 5px rgba(255,255,255,0.7), 0 4px 15px rgba(0,0,0,0.05);">
+                        <h3 id="airport-name" style="margin-top: 0; font-size: 1.5rem; color: var(--text-primary);"></h3>
+                        <p id="airport-advice" style="color: #555; font-style: italic; margin-bottom: 20px;"></p>
+                        
+                        <div id="flight-schedule"></div>
+                        
+                        <div style="text-align: center; margin-top: 30px;">
+                            <a id="booking-link" href="#" target="_blank" class="btn btn-primary" style="padding: 12px 30px; font-size: 0.85rem;">Book Live on Skyscanner</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <br>
+                <a href="travel.html" class="back-btn">Back to travel options</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 The Recharge Conference</p>
+    </footer>
+
+    <script>
+        // Exact recommendations extracted from old script.js
+        const airports = [
+            { 
+                name: "Sydney", code: "SYD", advice: "Direct to Ballina (BNK) is best.", 
+                flights: [
+                    { time: "07:15 AM", airline: "Jetstar", dest: "Ballina (BNK)", drive: "20 min", code: "JQ461" }, 
+                    { time: "09:40 AM", airline: "Qantas", dest: "Ballina (BNK)", drive: "20 min", code: "QF102" }
+                ] 
+            },
+            { 
+                name: "Melbourne", code: "MEL", advice: "Grab the early Jetstar direct.", 
+                flights: [
+                    { time: "08:30 AM", airline: "Jetstar", dest: "Ballina (BNK)", drive: "20 min", code: "JQ458" }
+                ] 
+            },
+            { 
+                name: "Brisbane", code: "BNE", advice: "We recommend the 2-hour drive!", 
+                flights: [
+                    { time: "Morning", airline: "Drive", dest: "Lennox Head", drive: "2 hr", code: "N/A" }
+                ] 
+            },
+            { 
+                name: "Adelaide", code: "ADL", advice: "Fly to Gold Coast (OOL) and catch the shuttle.", 
+                flights: [
+                    { time: "06:00 AM", airline: "Virgin", dest: "Gold Coast (OOL)", drive: "1 hr", code: "VA773" }
+                ] 
+            },
+            { 
+                name: "Perth", code: "PER", advice: "Take the red-eye to Brisbane or Sydney, then connect.", 
+                flights: [
+                    { time: "Overnight", airline: "Qantas", dest: "Ballina via SYD", drive: "20 min", code: "QF590" }
+                ] 
+            }
+        ];
+
+        let selectedAirport = null;
+        const searchInput = document.getElementById("fly-search");
+        const autocompleteList = document.getElementById("autocomplete-list");
+        const resultsDiv = document.getElementById("flight-results");
+
+        // Logic 2: Autocomplete Dropdown matching exact logic desired
+        searchInput.addEventListener("input", function() {
+            const val = this.value.toLowerCase().trim();
+            autocompleteList.innerHTML = "";
+            selectedAirport = null;
+            
+            if (!val) { 
+                autocompleteList.style.display = "none"; 
+                return; 
+            }
+            
+            const filtered = airports.filter(a => 
+                a.name.toLowerCase().includes(val) || 
+                a.code.toLowerCase().includes(val)
+            );
+            
+            if (filtered.length > 0) {
+                autocompleteList.style.display = "block";
+                filtered.forEach(airport => {
+                    const div = document.createElement("div");
+                    div.innerHTML = `<strong>${airport.name} (${airport.code})</strong>`;
+                    div.addEventListener("click", () => {
+                        searchInput.value = `${airport.name} (${airport.code})`;
+                        selectedAirport = airport;
+                        autocompleteList.style.display = "none";
+                        // Auto-show results immediately upon clicking the dropdown selection
+                        showFlightResults(airport);
+                    });
+                    autocompleteList.appendChild(div);
+                });
+            } else { 
+                autocompleteList.style.display = "none"; 
+            }
+        });
+
+        // Hide dropdown if clicked outside
+        document.addEventListener("click", function (e) {
+            if (e.target !== searchInput) {
+                autocompleteList.style.display = "none";
+            }
+        });
+
+        function triggerSearch() {
+            if (selectedAirport) {
+                showFlightResults(selectedAirport);
+            } else {
+                const val = searchInput.value.toLowerCase().trim();
+                const found = airports.find(a => a.name.toLowerCase().includes(val) || a.code.toLowerCase().includes(val));
+                if (found) {
+                    showFlightResults(found);
+                } else {
+                    alert("We recommend flying into Ballina (BNK) or Gold Coast (OOL) for the conference.");
+                }
+            }
+        }
+
+        // Logic 3: Precise recommendation rendering in clean UI
+        function showFlightResults(airport) {
+            document.getElementById('airport-name').innerText = `${airport.name} (${airport.code})`;
+            document.getElementById('airport-advice').innerText = airport.advice;
+            
+            let rows = airport.flights.map(f => `
+                <tr>
+                    <td><strong>${f.time}</strong></td>
+                    <td>${f.airline}</td>
+                    <td><strong>${f.code}</strong></td>
+                    <td>${f.dest}</td>
+                    <td>${f.drive}</td>
+                </tr>
+            `).join('');
+            
+            document.getElementById('flight-schedule').innerHTML = `
+                <table class="flight-table">
+                    <thead>
+                        <tr>
+                            <th>DEPARTS</th>
+                            <th>AIRLINE</th>
+                            <th>FLIGHT NO.</th>
+                            <th>ARRIVES</th>
+                            <th>DRIVE</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            `;
+            
+            document.getElementById('booking-link').href = `https://www.skyscanner.com.au/transport/flights/${airport.code.toLowerCase()}/bnk/260731/`;
+            
+            resultsDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+.DS_Store
+carpool.db
+style-old.css
+travel-old.html
+Walking animation.html
+*.mp4
+node_modules/
+.vscode/
+.idea/
+*.log
