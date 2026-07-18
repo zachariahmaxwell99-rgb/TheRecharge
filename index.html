@@ -14,43 +14,60 @@
     <meta property="og:image" content="https://zachariahmaxwell99-rgb.github.io/TheRecharge/images/og-image.jpg">
     <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" type="image/png" href="images/favicon.png">
-    <link rel="stylesheet" href="style.css?v=20260718">
+    <link rel="stylesheet" href="style.css?v=20260718b">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Open+Sans:wght@400;600&display=swap"
         rel="stylesheet">
 </head>
 
 <body>
 
+    <!-- Compact Header: slides in once the hero is scrolled past -->
+    <header id="compact-header">
+        <a href="index.html" class="compact-logo-link">
+            <img src="images/logo-light.png" alt="Recharge Logo" class="compact-logo">
+        </a>
+        <div class="compact-countdown" aria-label="Countdown Timer">
+            <div class="cd-unit"><span class="cd-days">00</span><p>Days</p></div>
+            <div class="cd-unit cd-hours-box"><span class="cd-hours">00</span><p>Hours</p></div>
+            <div class="cd-unit cd-minutes-box"><span class="cd-minutes">00</span><p>Min</p></div>
+        </div>
+        <div class="compact-actions">
+            <nav class="compact-nav-links">
+                <a href="about.html">About</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+            <a href="https://humanitix.com" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Book Tickets</a>
+        </div>
+    </header>
+
     <!-- Main Content -->
     <main>
-        <!-- Scroll Spacer: This invisible div gives the scroll distance for the transition. -->
-        <div id="scroll-spacer" style="height: 800px; width: 100%;"></div>
 
-        <!-- Sticky Hero: Now position:fixed at the top permanently -->
-        <section class="hero" id="home-hero" style="background: none; position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;">
-            
+        <!-- Full-screen Hero (scrolls naturally with the page) -->
+        <section class="hero hero-home" id="home-hero" style="background: none;">
+
             <!-- JS-Driven Crossfade Slideshow: two layers swap back and forth -->
             <div id="slide-a" style="position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-position:center;z-index:-1;transition:opacity 1.5s ease;"></div>
             <div id="slide-b" style="position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-position:center;z-index:-2;transition:opacity 1.5s ease;"></div>
 
             <div class="hero-content">
                 <!-- Navigation links integrated into hero -->
-                <div class="hero-nav hero-hide-on-scroll">
+                <div class="hero-nav">
                     <a href="about.html">About</a>
                     <a href="contact.html">Contact</a>
                 </div>
 
                 <img src="images/logo-light.png" alt="Recharge Logo" class="hero-logo">
 
-                <p class="blurb hero-hide-on-scroll">A weekend of equipping and fellowship.</p>
+                <p class="blurb">A weekend of equipping and fellowship.</p>
 
-                <h2 class="event-date hero-hide-on-scroll">July 31st – August 2nd, 2026</h2>
-                <div class="location-details hero-hide-on-scroll">
+                <h2 class="event-date">July 31st – August 2nd, 2026</h2>
+                <div class="location-details">
                     <p class="event-location">Camp Drew, Lennox Head NSW</p>
                 </div>
 
                 <!-- Full Hero Buttons (Centered, above the countdown so they're never below the fold) -->
-                <div class="hero-hide-on-scroll hero-cta">
+                <div class="hero-cta">
                      <a href="https://humanitix.com" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Book Tickets</a>
                      <a href="travel.html" class="btn btn-primary">Travel Help</a>
                 </div>
@@ -58,42 +75,30 @@
                 <!-- Countdown Timer Container -->
                 <section id="countdown" class="timer-grid" aria-label="Countdown Timer">
                     <div class="time-box">
-                        <span id="days">00</span>
+                        <span class="cd-days">00</span>
                         <p>Days</p>
                     </div>
                     <div class="time-box">
-                        <span id="hours">00</span>
+                        <span class="cd-hours">00</span>
                         <p>Hours</p>
                     </div>
                     <div class="time-box">
-                        <span id="minutes">00</span>
+                        <span class="cd-minutes">00</span>
                         <p>Minutes</p>
                     </div>
                     <div class="time-box">
-                        <span id="seconds">00</span>
+                        <span class="cd-seconds">00</span>
                         <p>Seconds</p>
                     </div>
                 </section>
-
-                <!-- Compact Action Buttons & Scrolled Nav (Visible only in header) -->
-                <div class="btn-group compact-fade-in">
-                    <div class="compact-nav-links">
-                        <a href="about.html">About</a>
-                        <a href="contact.html">Contact</a>
-                    </div>
-                    <a href="https://humanitix.com" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Book Tickets</a>
-                    <a href="travel.html" class="btn btn-primary">Travel Help</a>
-                </div>
             </div>
         </section>
-        
-        <!-- Gallery starts after the spacer -->
 
         <!-- Dynamic Photo Gallery -->
         <section class="content-section" style="padding: 60px 20px; max-width: 1200px; margin: 0 auto; text-align: center;">
             <h2 style="font-size: 2.2rem;">GLIMPSES OF RECHARGE</h2>
             <div class="accent-line"></div>
-            
+
             <div class="masonry-grid">
                 <img src="images/masonry-iphone-2.jpg" alt="Community Interaction" class="masonry-img" loading="lazy">
                 <img src="images/masonry-iphone-5.jpg" alt="Conference Highlight" class="masonry-img" loading="lazy">
@@ -111,23 +116,22 @@
     <footer>
         <p>&copy; 2026 The Recharge Conference</p>
     </footer>
-    <!-- Sticky Hero Collapse Script -->
+
+    <!-- Compact Header Reveal Script -->
     <script>
         (function() {
             const hero = document.getElementById('home-hero');
-            const SCROLL_THRESHOLD = 100;
+            const compact = document.getElementById('compact-header');
 
-            function updateHero() {
-                if (window.scrollY > SCROLL_THRESHOLD) {
-                    hero.classList.add('hero-scrolled');
-                } else {
-                    hero.classList.remove('hero-scrolled');
-                }
+            function updateHeader() {
+                // Reveal once most of the hero has scrolled out of view
+                const threshold = hero.offsetHeight - 120;
+                compact.classList.toggle('visible', window.scrollY > threshold);
             }
 
-            window.addEventListener('scroll', updateHero, { passive: true });
-            // Initial check
-            updateHero();
+            window.addEventListener('scroll', updateHeader, { passive: true });
+            window.addEventListener('resize', updateHeader);
+            updateHeader();
         })();
     </script>
 
@@ -175,43 +179,39 @@
         })();
     </script>
 
-    <!-- Countdown Script -->
+    <!-- Countdown Script (feeds both the hero countdown and the compact header) -->
     <script>
-        const countDownDate = new Date("July 31, 2026 17:00:00").getTime();
-        let timer;
+        (function() {
+            const countDownDate = new Date("July 31, 2026 17:00:00").getTime();
+            let timer;
 
-        function updateTimer() {
-            const now = new Date().getTime();
-            const distance = countDownDate - now;
-
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-            const daysEl = document.getElementById("days");
-            if (daysEl) daysEl.innerText = days.toString().padStart(2, '0');
-
-            const hoursEl = document.getElementById("hours");
-            if (hoursEl) hoursEl.innerText = hours.toString().padStart(2, '0');
-
-            const minutesEl = document.getElementById("minutes");
-            if (minutesEl) minutesEl.innerText = minutes.toString().padStart(2, '0');
-
-            const secondsEl = document.getElementById("seconds");
-            if (secondsEl) secondsEl.innerText = seconds.toString().padStart(2, '0');
-
-            if (distance < 0) {
-                if(timer) clearInterval(timer);
-                const countdownEl = document.getElementById("countdown");
-                if (countdownEl) countdownEl.innerHTML = "<p>THE EVENT HAS BEGUN</p>";
+            function setUnit(unit, value) {
+                document.querySelectorAll('.cd-' + unit).forEach(function(el) {
+                    el.innerText = value.toString().padStart(2, '0');
+                });
             }
-        }
 
-        // Run immediately to eliminate the 1-second '00' load-in jolt
-        updateTimer();
-        // Resume periodic tracking
-        timer = setInterval(updateTimer, 1000);
+            function updateTimer() {
+                const now = new Date().getTime();
+                const distance = countDownDate - now;
+
+                if (distance < 0) {
+                    if (timer) clearInterval(timer);
+                    const countdownEl = document.getElementById("countdown");
+                    if (countdownEl) countdownEl.innerHTML = "<p>THE EVENT HAS BEGUN</p>";
+                    return;
+                }
+
+                setUnit('days', Math.floor(distance / (1000 * 60 * 60 * 24)));
+                setUnit('hours', Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
+                setUnit('minutes', Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)));
+                setUnit('seconds', Math.floor((distance % (1000 * 60)) / 1000));
+            }
+
+            // Run immediately to eliminate the 1-second '00' load-in jolt
+            updateTimer();
+            timer = setInterval(updateTimer, 1000);
+        })();
     </script>
 
 </body>

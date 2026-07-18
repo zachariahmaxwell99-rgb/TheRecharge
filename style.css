@@ -82,17 +82,13 @@ main {
     border-bottom: 5px solid var(--btn-primary-bg); /* Warm transition line */
 }
 
-/* --- UNIFIED STICKY HERO & HEADER --- */
-/* Transitions kept only for border/layout — height, background, opacity are JS-driven */
-.hero {
-    transition: border 0.3s ease;
-}
-
-.hero-hide-on-scroll {
-    /* opacity & transform are JS-driven via scroll progress — no CSS transition needed */
+/* Homepage hero: full viewport height, scrolls naturally with the page */
+.hero-home {
+    position: relative;
+    z-index: 0; /* contain the negative-z-index slideshow layers */
     overflow: hidden;
-    max-height: 600px;
-    opacity: 1;
+    min-height: 100vh;
+    min-height: 100svh; /* mobile-safe viewport height */
 }
 
 /* Hero Navigation (Full state) */
@@ -116,143 +112,94 @@ main {
     color: var(--btn-primary-bg);
 }
 
-/* Standard Sticky Hero (scrolled state) */
-.hero.hero-scrolled {
-    min-height: 100px !important;
-    background-color: rgba(10, 15, 20, 0.95) !important;
-    padding: 10px 50px !important;
-    backdrop-filter: blur(25px) !important;
-    -webkit-backdrop-filter: blur(25px) !important;
-    border-bottom: 2px solid var(--btn-primary-bg) !important;
-    display: flex !important;
-    align-items: center !important;
-}
-
-/* Force everything in one centred row - spanning 94% of screen to avoid 'too wide' feel */
-.hero.hero-scrolled .hero-content {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    width: 94% !important;
-    max-width: 1700px !important; 
-    margin: 0 auto !important; 
-    padding: 0 !important;
-    height: auto !important;
-    box-sizing: border-box !important;
-}
-
-.hero.hero-scrolled .hero-logo {
-    width: 130px !important;
-    max-width: 130px !important;
-    margin: 0 !important;
-    margin-right: auto !important; /* Pin it to the left */
-    flex-shrink: 0;
-    align-self: center;
-    filter: none !important;
-    transition: none !important;
-}
-
-.hero.hero-scrolled .hero-hide-on-scroll {
-    display: none !important; /* Fast-hide text to make room */
-}
-
-/* Compact Countdown: centred */
-.hero.hero-scrolled .timer-grid {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    justify-content: center !important;
-    align-items: center !important;
-    gap: 30px !important;
-    margin: 0 auto !important;
-    opacity: 1 !important;
-    animation: none !important;
-}
-
-.hero.hero-scrolled .time-box {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: baseline !important;
-    gap: 5px;
-    margin: 0 !important;
-    animation: none !important;
-}
-
-.hero.hero-scrolled .time-box span {
-    font-size: 2.2rem !important;
-    color: var(--btn-primary-bg);
-    line-height: 1 !important;
-}
-
-.hero.hero-scrolled .time-box p {
-    font-size: 0.75rem !important;
-    opacity: 0.8;
-    margin: 0 !important;
-}
-
-/* Compact Right Side: Nav + Buttons */
-.hero.hero-scrolled .btn-group {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    margin: 0 !important;
-    gap: 30px !important;
-}
-
-.compact-nav-links {
+/* --- COMPACT HEADER (homepage: slides in after the hero is scrolled past) --- */
+#compact-header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
     display: flex;
-    gap: 20px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 25px;
+    padding: 10px 40px;
+    box-sizing: border-box;
+    background: rgba(10, 15, 20, 0.95);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border-bottom: 2px solid var(--btn-primary-bg);
+    transform: translateY(-100%);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.5s ease;
+    transition: transform 0.35s ease, opacity 0.35s ease;
 }
-.hero.hero-scrolled .compact-nav-links {
+#compact-header.visible {
+    transform: translateY(0);
     opacity: 1;
     pointer-events: auto;
 }
+.compact-logo-link { flex-shrink: 0; display: block; }
+.compact-logo { height: 36px; display: block; }
 
-/* Compact button group: hidden in the full hero, fades in when the header collapses */
-.compact-fade-in {
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.5s ease;
+.compact-countdown {
+    display: flex;
+    gap: 28px;
+    align-items: baseline;
+    justify-content: center;
+    flex: 1;
+    min-width: 0;
 }
-.hero.hero-scrolled .compact-fade-in {
-    opacity: 1 !important;
-    pointer-events: auto !important;
+.cd-unit {
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+    white-space: nowrap;
+}
+.cd-unit span {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1.9rem;
+    line-height: 1;
+    color: var(--btn-primary-bg);
+    font-variant-numeric: tabular-nums;
+}
+.cd-unit p {
+    margin: 0;
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #e0d7cd;
+    opacity: 0.85;
 }
 
-.hero.hero-scrolled .btn {
-    padding: 10px 22px !important;
-    font-size: 0.85rem !important;
+.compact-actions {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+    flex-shrink: 0;
+}
+.compact-nav-links {
+    display: flex;
+    gap: 20px;
+}
+#compact-header .btn {
+    padding: 10px 22px;
+    font-size: 0.85rem;
     white-space: nowrap;
 }
 
-/* --- COMPACT HEADER RESPONSIVENESS --- */
 /* Progressively drop the least important pieces so the bar never wraps or grows */
-@media (max-width: 1300px) {
-    .hero.hero-scrolled .timer-grid { gap: 15px !important; }
-    .hero.hero-scrolled .btn-group { gap: 15px !important; }
-    .hero.hero-scrolled .time-box:nth-child(4) { display: none !important; } /* seconds */
-    .hero.hero-scrolled .hero-logo { width: 100px !important; }
-}
 @media (max-width: 1000px) {
-    .hero.hero-scrolled .compact-nav-links { display: none !important; }
-    .hero.hero-scrolled .time-box:nth-child(3) { display: none !important; } /* minutes */
-    .hero.hero-scrolled .btn-group a:nth-of-type(2) { display: none !important; } /* Travel Help */
-    .hero.hero-scrolled .time-box span { font-size: 1.8rem !important; }
+    #compact-header { gap: 15px; padding: 10px 25px; }
+    .compact-nav-links { display: none; }
+    .cd-minutes-box { display: none; }
+    .cd-unit span { font-size: 1.7rem; }
 }
 @media (max-width: 600px) {
-    .hero.hero-scrolled { min-height: 64px !important; padding: 8px 16px !important; }
-    .hero.hero-scrolled .hero-logo { width: 85px !important; }
-    .hero.hero-scrolled .time-box:nth-child(2) { display: none !important; } /* hours */
-    .hero.hero-scrolled .time-box span { font-size: 1.5rem !important; }
-    .hero.hero-scrolled .btn { padding: 8px 14px !important; font-size: 0.75rem !important; }
+    #compact-header { padding: 8px 16px; }
+    .compact-logo { height: 28px; }
+    .cd-hours-box { display: none; }
+    .cd-unit span { font-size: 1.5rem; }
+    #compact-header .btn { padding: 8px 14px; font-size: 0.75rem; }
 }
 
 /* Full-hero adjustments on small screens */
