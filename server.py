@@ -38,8 +38,12 @@ def create_ride():
     name = data.get('name')
     origin = data.get('origin')
     route = data.get('route')
-    seats = int(data.get('seats', 1))
-    
+    try:
+        seats = int(data.get('seats', 1))
+    except (TypeError, ValueError):
+        return jsonify({"error": "Invalid seats value"}), 400
+    seats = max(1, min(seats, 10))
+
     if not origin or not name or not route or ride_type not in ['driver', 'passenger']:
         return jsonify({"error": "Invalid payload parameters"}), 400
         
@@ -92,5 +96,7 @@ def get_matches():
     return jsonify({"success": True, "matches": matches}), 200
 
 if __name__ == '__main__':
-    print("SUCCESS: Recharge Backend Server is Live on Port 5000...")
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    debug = os.environ.get('FLASK_DEBUG') == '1'
+    print(f"SUCCESS: Recharge Backend Server is Live on Port {port}...")
+    app.run(debug=debug, port=port)

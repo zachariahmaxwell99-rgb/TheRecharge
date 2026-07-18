@@ -5,7 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carpool | The Recharge Conference</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="description" content="Carpool to the Recharge Conference — offer your spare seats or request a lift to Camp Drew, Lennox Head NSW, July 31 – August 2, 2026.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Carpool to Recharge 2026">
+    <meta property="og:description" content="Offer spare seats or find a lift to Camp Drew, Lennox Head NSW.">
+    <meta property="og:image" content="images/og-image.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <link rel="stylesheet" href="style.css?v=20260718">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Open+Sans:wght@400;600&display=swap"
         rel="stylesheet">
     <style>
@@ -200,7 +207,7 @@
         .badge-dest { background: #e74c3c; }
         .passenger-pickup { background: rgba(46, 204, 113, 0.1); border-left: 3px solid #2ecc71; padding: 5px 10px; margin-top: 5px; font-size: 0.85rem; border-radius: 0 4px 4px 0; }
         
-        body { background: linear-gradient(rgba(10, 20, 30, 0.8), rgba(10, 20, 30, 0.8)), url('images/drone-carpool-bg.jpg') center/cover no-repeat fixed; }
+        body { background: linear-gradient(rgba(10, 20, 30, 0.8), rgba(10, 20, 30, 0.8)), url('images/drone-carpool-bg.jpg') center/cover no-repeat; }
         .glass-panel { background: rgba(30, 40, 50, 0.6) !important; border-color: rgba(255,255,255,0.2); box-shadow: 0 20px 50px rgba(0,0,0,0.5) !important; filter: none !important; }
         h1 { color: #fff !important; text-shadow: 0 4px 15px rgba(0,0,0,0.8); }
         #carpool-view p, #driver-view p, #passenger-view p { color: #ddd !important; text-shadow: 0 2px 5px rgba(0,0,0,0.6); }
@@ -252,7 +259,29 @@
                 <!-- DRIVER VIEW -->
                 <div id="driver-view" style="display:none;">
                     <h1>OFFER A RIDE</h1>
-                            PASSENGERS</button>
+                    <p>Where are you driving from, and how many spare seats do you have?</p>
+                    <br>
+                    <div style="max-width: 420px; margin: 0 auto; text-align: left;">
+                        <label class="form-label">YOUR NAME</label>
+                        <input type="text" id="driver-name" class="form-input" placeholder="What's your name?"
+                            autocomplete="off" style="margin-bottom: 25px;">
+
+                        <label class="form-label">STARTING TOWN</label>
+                        <div class="search-container">
+                            <input type="text" id="driver-origin" class="form-input"
+                                placeholder="Enter your starting town..." autocomplete="off">
+                            <div id="driver-autocomplete" class="autocomplete-items"></div>
+                        </div>
+
+                        <label class="form-label" style="margin-top: 25px;">SPARE SEATS</label>
+                        <select id="driver-seats" class="form-input" style="margin-bottom: 30px;">
+                            <option value="1">1 seat</option>
+                            <option value="2">2 seats</option>
+                            <option value="3">3 seats</option>
+                            <option value="4">4 seats</option>
+                        </select>
+
+                        <button class="btn btn-primary" style="width:100%" onclick="scanForPassengers()">OFFER MY SEATS</button>
                     </div>
                     <br><br>
                     <a href="javascript:void(0)" onclick="resetSelection()" class="back-btn">Back to carpool options</a>
@@ -281,15 +310,6 @@
                     </div>
                     <br><br>
                     <a href="javascript:void(0)" onclick="resetSelection()" class="back-btn">Back to carpool options</a>
-                </div>
-
-                <!-- LOADING VIEW -->
-                <div id="loading-view" style="display:none; padding: 40px 0;">
-                    <h2 id="loading-text" style="color: var(--primary-color);">SCANNING ROUTES...</h2>
-                    <div class="loader-bar">
-                        <div class="loader-progress"></div>
-                    </div>
-                    <p style="font-style: italic; color: #888;">Connecting to the community grid...</p>
                 </div>
 
                 <!-- MATCH VIEW -->
@@ -418,7 +438,6 @@
         function resetSelection() {
             document.getElementById('driver-view').style.display = 'none';
             document.getElementById('passenger-view').style.display = 'none';
-            document.getElementById('loading-view').style.display = 'none';
             document.getElementById('match-view').style.display = 'none';
             document.getElementById('receipt-view').style.display = 'none';
 
@@ -431,213 +450,106 @@
         }
 
         let currentRole = '';
-        let driverSeats = 1;
+        let currentDetails = null;
 
-        // Mock generators strictly removed! Live data is now sourced entirely directly from SQLite Backend!
+        // Carpool matching is coordinated by the Recharge team over email —
+        // this page builds the route preview and pre-fills the email for the attendee.
+        const CARPOOL_EMAIL = "hello@therecharge.org";
+
+        function showRoutePreview(role, details) {
+            currentRole = role;
+            currentDetails = details;
+            const isDriver = role === 'driver';
+            const userRoute = getRoute(details.origin);
+
+            document.getElementById('match-title').innerText = isDriver ? "YOUR ROUTE TO CAMP DREW" : "YOUR PICKUP ROUTE";
+            document.getElementById('match-subtitle').innerHTML = isDriver
+                ? `Here's the route you'll likely travel. Send us your offer and we'll connect you with passengers along the way.`
+                : `Drivers heading to Camp Drew pass through these towns. Send us your request and we'll connect you with a driver on this route.`;
+
+            let visualMap = `<div class="route-visualizer"><h3>Route Preview</h3><div class="timeline">`;
+            userRoute.forEach((town, index) => {
+                const isOrigin = index === 0;
+                const isDestination = index === userRoute.length - 1;
+                const dotClass = isOrigin ? (isDriver ? 'dot-driver' : 'dot-passenger') : (isDestination ? 'dot-dest' : 'dot-normal');
+
+                let extraInfo = '';
+                if (isOrigin) extraInfo = `<span class="badge ${isDriver ? 'badge-driver' : 'badge-passenger'}">${isDriver ? 'Your Start' : 'Your Pickup Point'}</span>`;
+                else if (isDestination) extraInfo = `<span class="badge badge-dest">Camp Drew</span>`;
+
+                visualMap += `
+                    <div class="timeline-item">
+                        <div class="timeline-line"></div>
+                        <div class="timeline-dot ${dotClass}"></div>
+                        <div class="timeline-content">
+                            <div class="town-name">${formatDisplayTown(town)}</div>
+                            ${extraInfo}
+                        </div>
+                    </div>
+                `;
+            });
+            visualMap += `</div></div>`;
+
+            document.getElementById('match-list').innerHTML = visualMap;
+            document.getElementById('confirm-match-btn').innerText = isDriver ? "EMAIL MY OFFER" : "EMAIL MY REQUEST";
+            document.getElementById('confirm-match-btn').onclick = sendCarpoolEmail;
+            document.getElementById('match-view').style.display = 'block';
+        }
 
         function scanForPassengers() {
             const name = document.getElementById('driver-name').value.trim();
-            const origin = document.getElementById('driver-origin').value;
-            driverSeats = parseInt(document.getElementById('driver-seats').value) || 1;
-
+            const origin = document.getElementById('driver-origin').value.trim();
+            const seats = parseInt(document.getElementById('driver-seats').value) || 1;
             if (!name || !origin) return alert("Please enter your name and starting town.");
 
-            currentRole = 'driver';
             document.getElementById('driver-view').style.display = 'none';
-            document.getElementById('loading-text').innerText = "REGISTERING ALGORITHM...";
-            document.getElementById('loading-view').style.display = 'block';
-            
-            const userRoute = getRoute(origin);
-
-            // Post to Live Backend natively
-            fetch('http://127.0.0.1:5000/api/ride', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type: 'driver', name: name, origin: origin.toLowerCase().trim(), route: userRoute, seats: driverSeats })
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        return fetch(`http://127.0.0.1:5000/api/matches?role=driver&origin=${origin.toLowerCase().trim()}&route=${encodeURIComponent(JSON.stringify(userRoute))}`);
-                    } else throw new Error(data.error);
-                })
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById('loading-view').style.display = 'none';
-
-                    if (data.matches.length === 0) {
-                        document.getElementById('match-title').innerText = "NO PASSENGERS YET";
-                        document.getElementById('match-subtitle').innerHTML = `There are currently no active passengers requesting a lift along your route.<br><br>We have securely recorded your offer (<strong>${name} from ${origin}</strong>) seamlessly into the live database. We will dynamically match the very next passenger who queries this route!`;
-                        document.getElementById('match-list').innerHTML = '';
-                        document.getElementById('confirm-match-btn').innerText = "CONFIRM MANIFEST";
-                        document.getElementById('confirm-match-btn').onclick = () => generateManifest(false);
-                        document.getElementById('match-view').style.display = 'block';
-                        return;
-                    }
-
-                    document.getElementById('match-title').innerText = "LIVE MATCHES FOUND";
-                    document.getElementById('match-subtitle').innerHTML = `Queried the server and successfully identified <strong>${data.matches.length}</strong> attendee${data.matches.length > 1 ? 's' : ''} natively needing a lift!`;
-
-                    let visualMap = `<div class="route-visualizer"><h3>Your Transit Route</h3><div class="timeline">`;
-                    
-                    userRoute.forEach((town, index) => {
-                        let townMatches = data.matches.filter(m => m.origin.toLowerCase() === town.toLowerCase());
-                        let isOrigin = index === 0;
-                        let isDestination = index === userRoute.length - 1;
-                        
-                        let dotClass = isOrigin ? 'dot-driver' : (isDestination ? 'dot-dest' : (townMatches.length > 0 ? 'dot-passenger' : 'dot-normal'));
-                        
-                        let extraInfo = '';
-                        if (isOrigin) extraInfo = `<span class="badge badge-driver">Your Start</span>`;
-                        else if (isDestination) extraInfo = `<span class="badge badge-dest">Camp Drew</span>`;
-                        
-                        if (townMatches.length > 0) {
-                            townMatches.forEach(m => {
-                                extraInfo += `<div class="passenger-pickup">Pick up <strong>${m.name}</strong> (${m.seats} seat${m.seats>1?'s':''})</div>`;
-                            });
-                        }
-                        
-                        visualMap += `
-                            <div class="timeline-item">
-                                <div class="timeline-line"></div>
-                                <div class="timeline-dot ${dotClass}"></div>
-                                <div class="timeline-content">
-                                    <div class="town-name">${formatDisplayTown(town)}</div>
-                                    ${extraInfo}
-                                </div>
-                            </div>
-                        `;
-                    });
-                    visualMap += `</div></div>`;
-                    
-                    document.getElementById('match-list').innerHTML = visualMap;
-                    document.getElementById('confirm-match-btn').innerText = "OFFER RIDE";
-                    document.getElementById('confirm-match-btn').onclick = () => generateManifest(true);
-
-                    document.getElementById('match-view').style.display = 'block';
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert("Database Error: Is server.py actively running on Port 5000?");
-                    resetSelection();
-                });
+            showRoutePreview('driver', { name, origin, seats });
         }
 
         function scanForDrivers() {
             const name = document.getElementById('passenger-name').value.trim();
-            const origin = document.getElementById('passenger-origin').value;
+            const origin = document.getElementById('passenger-origin').value.trim();
             if (!name || !origin) return alert("Please enter your name and pickup location.");
 
-            currentRole = 'passenger';
             document.getElementById('passenger-view').style.display = 'none';
-            document.getElementById('loading-text').innerText = "SEARCHING LIVE DATABASE...";
-            document.getElementById('loading-view').style.display = 'block';
-            
-            const userRoute = getRoute(origin);
-
-            // Post absolute real user natively to Live Backend
-            fetch('http://127.0.0.1:5000/api/ride', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type: 'passenger', name: name, origin: origin.toLowerCase().trim(), route: userRoute })
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        return fetch(`http://127.0.0.1:5000/api/matches?role=passenger&origin=${origin.toLowerCase().trim()}`);
-                    } else throw new Error(data.error);
-                })
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById('loading-view').style.display = 'none';
-
-                    if (data.matches.length === 0) {
-                        document.getElementById('match-title').innerText = "NO DRIVERS FOUND";
-                        document.getElementById('match-subtitle').innerHTML = `There are currently no active drivers tracked natively in our live database.<br><br>We have securely logged your request (<strong>${name} from ${origin}</strong>) into the database! The next compatible driver to search will flawlessly match directly to your ticket!`;
-                        document.getElementById('match-list').innerHTML = '';
-                        document.getElementById('confirm-match-btn').innerText = "CONFIRM SEAT WAITLIST";
-                        document.getElementById('confirm-match-btn').onclick = () => generateManifest(false);
-                        document.getElementById('match-view').style.display = 'block';
-                        return;
-                    }
-
-                    const match = data.matches[0];
-
-                    document.getElementById('match-title').innerText = "SEAT AVAILABLE!";
-                    document.getElementById('match-subtitle').innerHTML = `Successfully found a matching driver inherently inside the local database.`;
-
-                    let driverRoute = [];
-                    try { driverRoute = JSON.parse(match.route); } catch(e) { driverRoute = [match.origin, origin, "byron"]; }
-                    
-                    let visualMap = `<div class="route-visualizer"><h3>${match.name}'s Transit Route</h3><div class="timeline">`;
-                    
-                    driverRoute.forEach((town, index) => {
-                        let isDriverOrigin = index === 0;
-                        let isDestination = index === driverRoute.length - 1;
-                        let isPassengerPickup = town.toLowerCase() === origin.toLowerCase();
-                        
-                        let dotClass = isDriverOrigin ? 'dot-driver' : (isDestination ? 'dot-dest' : (isPassengerPickup ? 'dot-passenger' : 'dot-normal'));
-                        
-                        let extraInfo = '';
-                        if (isDriverOrigin) extraInfo = `<div style="margin-top: 5px;"><span class="badge badge-driver">${match.name} starts here</span><div style="font-size:0.8rem; color:#666; margin-top:2px;">Has ${match.seats} seats available</div></div>`;
-                        else if (isDestination) extraInfo = `<span class="badge badge-dest">Camp Drew</span>`;
-                        
-                        if (isPassengerPickup) extraInfo += `<div class="passenger-pickup"><strong>Your Pickup Point!</strong></div>`;
-                        
-                        visualMap += `
-                            <div class="timeline-item">
-                                <div class="timeline-line"></div>
-                                <div class="timeline-dot ${dotClass}"></div>
-                                <div class="timeline-content">
-                                    <div class="town-name">${formatDisplayTown(town)}</div>
-                                    ${extraInfo}
-                                </div>
-                            </div>
-                        `;
-                    });
-                    visualMap += `</div></div>`;
-                    
-                    document.getElementById('match-list').innerHTML = visualMap;
-
-                    document.getElementById('confirm-match-btn').innerText = "REQUEST SEAT";
-                    document.getElementById('confirm-match-btn').onclick = () => generateManifest(true);
-
-                    document.getElementById('match-view').style.display = 'block';
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert("Database Error: Is server.py actively running on Port 5000?");
-                    resetSelection();
-                });
+            showRoutePreview('passenger', { name, origin });
         }
 
-        function generateManifest(hasMatch) {
+        function sendCarpoolEmail() {
+            const isDriver = currentRole === 'driver';
+            const d = currentDetails;
+            const subject = isDriver
+                ? `Carpool: offering ${d.seats} seat${d.seats > 1 ? 's' : ''} from ${formatDisplayTown(d.origin)}`
+                : `Carpool: requesting a lift from ${formatDisplayTown(d.origin)}`;
+            const body = isDriver
+                ? `Hi Recharge team,\n\nI'd like to offer a carpool ride to the conference.\n\nName: ${d.name}\nStarting town: ${formatDisplayTown(d.origin)}\nSpare seats: ${d.seats}\n\nPlease connect me with passengers along my route.\n\nThanks!`
+                : `Hi Recharge team,\n\nI'm looking for a lift to the conference.\n\nName: ${d.name}\nPickup town: ${formatDisplayTown(d.origin)}\n\nPlease connect me with a driver passing through my area.\n\nThanks!`;
+
+            window.location.href = `mailto:${CARPOOL_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            generateManifest();
+        }
+
+        function generateManifest() {
             document.getElementById('match-view').style.display = 'none';
             document.getElementById('receipt-view').style.display = 'block';
 
             const isDriver = currentRole === 'driver';
-
-            let statusText = hasMatch ? "MATCH CONFIRMED" : "JOINED WAITLIST";
-            let headerText = isDriver ? "DRIVER'S MANIFEST" : "BOARDING PASS";
-            let thanksText = isDriver ? "THANK YOU!" : "PACK YOUR BAGS!";
-            let bodyText = "";
-
-            if (hasMatch) {
-                bodyText = isDriver ? "By occupying those extra seats, you've drastically reduced the carbon footprint of your journey. Thank you for driving our community forward." : "Your seat has been reserved. Wait for your driver to arrive and enjoy the journey to the Recharge Conference!";
-            } else {
-                thanksText = "REQUEST LOGGED!";
-                bodyText = isDriver ? "Your driving offer is safely stored in our live network database. We will notify you seamlessly the exact moment a passenger requests a seat in your vehicle!" : "Your travel request is safely banked! As soon as a compatible driver registers an empty seat mapping securely to your route, we will instantly link your tickets!";
-            }
+            const headerText = isDriver ? "DRIVER'S MANIFEST" : "BOARDING PASS";
+            const thanksText = isDriver ? "THANK YOU!" : "PACK YOUR BAGS!";
+            const bodyText = isDriver
+                ? "Your email should have opened with your offer pre-filled — hit send and the Recharge team will connect you with passengers along your route before the conference."
+                : "Your email should have opened with your request pre-filled — hit send and the Recharge team will connect you with a driver passing through your area before the conference.";
 
             document.getElementById('receipt-display').innerHTML = `
                 <div style="background: white; border: 2px solid #333; padding: 30px; font-family: 'Courier New', monospace; text-align: left; box-shadow: 8px 8px 0 rgba(0,0,0,0.1); margin: 20px auto; max-width: 600px; color: #333;">
                     <h3 style="margin-top: 0; color: var(--text-primary); font-family: var(--font-heading);">${headerText}</h3>
                     <div style="border-bottom: 2px dashed #ccc; margin: 15px 0;"></div>
-                    <p><strong>STATUS:</strong> ${statusText}</p>
-                    <p><strong>ROLE:</strong> ${isDriver ? "PILOT" : "PASSENGER"}</p>
+                    <p><strong>ROLE:</strong> ${isDriver ? "DRIVER" : "PASSENGER"}</p>
+                    <p><strong>FROM:</strong> ${formatDisplayTown(currentDetails.origin)}</p>
                     <div style="border-bottom: 2px dashed #ccc; margin: 15px 0;"></div>
                     <h2 style="color: #0077b6; margin: 15px 0; font-family: var(--font-heading);">${thanksText}</h2>
                     <p>${bodyText}</p>
+                    <p style="font-size: 0.85rem; color: #666;">Didn't see an email window open? Just email us directly at <strong>${CARPOOL_EMAIL}</strong>.</p>
                 </div>
             `;
         }

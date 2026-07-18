@@ -1,9 +1,11 @@
 .DS_Store
 carpool.db
-style-old.css
-travel-old.html
-Walking animation.html
+_archive/
 *.mp4
+*.mov
+*.zip
+images/DSC00087.JPG
+images/Instagram Event Tile The Recharge Camp 2026/
 node_modules/
 .vscode/
 .idea/

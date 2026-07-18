@@ -4,30 +4,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Recharge Conference | Contact</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Contact Us | The Recharge Conference</title>
+    <meta name="description" content="Get in touch with the Recharge Conference team — questions about tickets, travel, or the program for July 31 – August 2, 2026 at Camp Drew, Lennox Head NSW.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Contact | The Recharge Conference 2026">
+    <meta property="og:description" content="Questions about tickets, travel or the program? Get in touch with the Recharge team.">
+    <meta property="og:image" content="images/og-image.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <link rel="stylesheet" href="style.css?v=20260718">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Open+Sans:wght@400;600&display=swap"
         rel="stylesheet">
     <style>
-        body {
-            background: linear-gradient(rgba(10, 20, 30, 0.7), rgba(10, 20, 30, 0.7)), url('images/drone-contact-bg.jpg') center/cover no-repeat fixed;
-        }
-        .container { 
-            background: rgba(30, 40, 50, 0.6); 
-            border: 1px solid rgba(255,255,255,0.2); 
+        .contact-panel {
+            background: rgba(30, 40, 50, 0.6);
+            border: 1px solid rgba(255,255,255,0.2);
             border-radius: 12px;
             padding: 50px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             animation: fadeUp 1s ease-out forwards;
-            max-width: 600px; margin: 0 auto;
+            max-width: 640px;
+            margin: 0 auto;
         }
-        .content-section h1 { color: #fff; text-shadow: 0 4px 15px rgba(0,0,0,0.8); margin-top: 0; }
-        .content-section p { color: #ddd !important; }
+        .contact-panel h1 { color: #fff; text-shadow: 0 4px 15px rgba(0,0,0,0.8); margin-top: 0; }
+        .contact-panel p { color: #ddd; }
+        .contact-email {
+            display: inline-block;
+            font-size: 1.15rem;
+            color: var(--btn-primary-bg);
+            text-decoration: none;
+            border-bottom: 1px dotted var(--btn-primary-bg);
+            padding-bottom: 2px;
+            margin: 5px 0 25px 0;
+        }
+        .contact-email:hover { color: #fff; border-color: #fff; }
+        .contact-detail { margin-top: 35px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.15); }
+        .contact-detail h3 { color: #fff; margin-bottom: 5px; font-size: 1rem; letter-spacing: 1px; text-transform: uppercase; }
     </style>
 </head>
 
-<body>
+<body class="page-dark" style="--page-bg: url('images/drone-contact-bg.jpg')">
 
     <!-- Navigation Bar -->
     <nav class="navbar">
@@ -45,9 +63,20 @@
     <!-- Main Content -->
     <main style="padding: 4rem 1rem; text-align: center;">
         <section class="content-section">
-            <div class="container">
-                <h1>Contact Us</h1>
-                <p>This is under development, contact coming soon.</p>
+            <div class="contact-panel">
+                <h1>CONTACT US</h1>
+                <p>Questions about tickets, the program, what to bring, or getting to Camp Drew? We can't wait to hear from you.</p>
+
+                <a class="contact-email" href="mailto:hello@therecharge.org">hello@therecharge.org</a>
+                <br>
+                <a href="mailto:hello@therecharge.org" class="btn btn-primary">Email Us</a>
+
+                <div class="contact-detail">
+                    <h3>Event Details</h3>
+                    <p style="margin: 5px 0;">July 31st &ndash; August 2nd, 2026<br>
+                    Camp Drew, Lennox Head NSW</p>
+                    <p style="margin-top: 20px;"><a href="travel.html" class="back-btn" style="margin-top: 0;">Need help getting there? Visit the Travel Hub</a></p>
+                </div>
             </div>
         </section>
     </main>

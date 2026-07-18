@@ -8,6 +8,7 @@
     --btn-primary-hover: #b0a08e;  /* Darker taupe for interaction */
     --btn-secondary-border: #ffffff;
     --hero-overlay: rgba(30, 24, 20, 0.45); /* Warm dark overlay for background images */
+    --primary-color: #c1b3a3;      /* Alias used by sub-pages (carpool etc.) */
     
     /* Typography */
     --font-heading: 'Montserrat', sans-serif;
@@ -48,9 +49,6 @@ main {
     display: flex; justify-content: space-between; align-items: center;
     padding: 15px 50px; box-sizing: border-box; z-index: 100;
     transition: opacity 0.8s ease, transform 0.8s ease;
-}
-.index-page-nav {
-    display: none !important;
 }
 .navbar.nav-hidden {
     opacity: 0;
@@ -163,6 +161,7 @@ main {
 .hero.hero-scrolled .timer-grid {
     display: flex !important;
     flex-direction: row !important;
+    flex-wrap: nowrap !important;
     justify-content: center !important;
     align-items: center !important;
     gap: 30px !important;
@@ -217,9 +216,53 @@ main {
     pointer-events: auto;
 }
 
+/* Compact button group: hidden in the full hero, fades in when the header collapses */
+.compact-fade-in {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+.hero.hero-scrolled .compact-fade-in {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
 .hero.hero-scrolled .btn {
     padding: 10px 22px !important;
     font-size: 0.85rem !important;
+    white-space: nowrap;
+}
+
+/* --- COMPACT HEADER RESPONSIVENESS --- */
+/* Progressively drop the least important pieces so the bar never wraps or grows */
+@media (max-width: 1300px) {
+    .hero.hero-scrolled .timer-grid { gap: 15px !important; }
+    .hero.hero-scrolled .btn-group { gap: 15px !important; }
+    .hero.hero-scrolled .time-box:nth-child(4) { display: none !important; } /* seconds */
+    .hero.hero-scrolled .hero-logo { width: 100px !important; }
+}
+@media (max-width: 1000px) {
+    .hero.hero-scrolled .compact-nav-links { display: none !important; }
+    .hero.hero-scrolled .time-box:nth-child(3) { display: none !important; } /* minutes */
+    .hero.hero-scrolled .btn-group a:nth-of-type(2) { display: none !important; } /* Travel Help */
+    .hero.hero-scrolled .time-box span { font-size: 1.8rem !important; }
+}
+@media (max-width: 600px) {
+    .hero.hero-scrolled { min-height: 64px !important; padding: 8px 16px !important; }
+    .hero.hero-scrolled .hero-logo { width: 85px !important; }
+    .hero.hero-scrolled .time-box:nth-child(2) { display: none !important; } /* hours */
+    .hero.hero-scrolled .time-box span { font-size: 1.5rem !important; }
+    .hero.hero-scrolled .btn { padding: 8px 14px !important; font-size: 0.75rem !important; }
+}
+
+/* Full-hero adjustments on small screens */
+@media (max-width: 600px) {
+    .hero-nav { top: 20px; right: 20px; gap: 20px; }
+    .hero-logo { max-width: 88%; }
+    .blurb { font-size: 1.25rem; }
+    .event-date { font-size: 1.4rem; }
+    .time-box { padding: 12px 18px; }
+    .time-box span { font-size: 2rem; }
 }
 
 
@@ -229,11 +272,20 @@ main {
     width: 100%;
 }
 
-.hero-logo { 
-    width: 100%; 
-    max-width: 700px; 
-    margin-bottom: 30px; 
-    filter: drop-shadow(0px 0px 15px rgba(255, 255, 255, 0.4));
+.hero-logo {
+    width: 100%;
+    max-width: 700px;
+    margin-bottom: 30px;
+    filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.55));
+}
+
+/* Primary call-to-action row: sits above the countdown so it's never below the fold */
+.hero-cta {
+    margin: 10px 0 10px 0;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 .blurb {
@@ -489,6 +541,38 @@ footer a:hover { text-decoration: underline; }
 @media (max-width: 600px) {
     .masonry-grid { column-count: 1; }
 }
+
+/* --- SHARED DARK PAGE THEME (travel, contact, flight, drive, walk, carpool) --- */
+/* Usage: <body class="page-dark" style="--page-bg: url('images/....jpg')"> */
+/* Note: no background-attachment:fixed — iOS Safari renders it incorrectly */
+body.page-dark {
+    background: linear-gradient(rgba(10, 20, 30, 0.7), rgba(10, 20, 30, 0.7)), var(--page-bg) center/cover no-repeat;
+    color: #fff;
+}
+.page-dark .glass-panel {
+    background: rgba(30, 40, 50, 0.6);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+.page-dark .content-section h1,
+.page-dark .content-section h2 {
+    color: #fff;
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+}
+.page-dark .content-section p { color: #ddd; }
+.page-dark .choice-card {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.page-dark .choice-card h3 { color: var(--btn-primary-bg); }
+.page-dark .choice-card p { color: #ddd; }
+.page-dark .choice-card:hover {
+    background: rgba(0, 0, 0, 0.8);
+    border-color: var(--btn-primary-bg);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+.page-dark .back-btn { color: #ddd; }
 
 /* --- ANIMATIONS --- */
 
